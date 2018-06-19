@@ -4,29 +4,26 @@ using System.DirectoryServices;
 using System.IO;
 using System.Timers;
 using System.Text;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
-using System.Net.NetworkInformation;
 using System.Net.Http;
 
-namespace ConsoleApplication1
+namespace LokalHostChecker
 {
-    class Program
+    class HostChecker
     {
         private List<string> m_hosts;
-        private static readonly HttpClient m_client = new HttpClient();
         private static Timer timer;
 
-        private const string URL = "https://this-is-not-validlink.com/varyence-test";
-        private const int PORT_1 = 1000;
-        private const int PORT_2 = 3389;
+        private readonly string URL = "https://this-is-not-validlink.com/varyence-test";
+        private readonly int PORT_1 = 1000;
+        private readonly int PORT_2 = 3389;
         
         // Time in millisecond.
         // 300 000 - means 5 minutes.
         private const long TIME_INTERVAL = 300000;
 
-        public Program()
+        public HostChecker()
         {
             m_hosts = new List<string>();
         }
@@ -114,11 +111,11 @@ namespace ConsoleApplication1
         /*
          * This method execute on timer event.
          */
-        private static void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+        private static void StartCommunicationsServiceThread(Object source, System.Timers.ElapsedEventArgs e)
         {
             Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
 
-            Program obj = new Program();
+            HostChecker obj = new HostChecker();
             obj.ProcessCollectedHosts();
         }
 
@@ -128,7 +125,7 @@ namespace ConsoleApplication1
             timer.Interval = TIME_INTERVAL;
 
             // Assign function wich would be called every 5 minutes. 
-            timer.Elapsed += OnTimedEvent;
+            timer.Elapsed += StartCommunicationsServiceThread;
             timer.AutoReset = true;
 
             // Start the timer
